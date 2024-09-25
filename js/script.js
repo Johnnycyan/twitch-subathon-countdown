@@ -5,152 +5,408 @@ var initialMinutes;
 var initialSeconds;
 var paused = false;
 var happy_hour_active = false;
+var random_hour_active = false;
+let countdownEnded = false;
+let countdownUpdater = null;
+let initialStartTime;
+let totalElapsedTime = 0;
+let initialTotalTime = 0;
+var maxHours, maxMinutes, maxSeconds;
+let remainingTimeOnPause = 0;
 
 var initialHoursLocal = window.localStorage.getItem('initialHours')
-if(initialHoursLocal !== null) {
+if (initialHoursLocal !== null) {
 	initialHours  = initialHoursLocal;
 	logMessage("Core", "Found initialHours in localStorage.")
 } else {
 	initialHours = initialHoursConfig;
 }
 var initialMinutesLocal = window.localStorage.getItem('initialMinutes')
-if(initialMinutesLocal !== null) {
+if (initialMinutesLocal !== null) {
 	initialMinutes = initialMinutesLocal;
 	logMessage("Core", "Found initialMinutes in localStorage.")
 } else {
 	initialMinutes = initialMinutesConfig;
 }
 var initialSecondsLocal = window.localStorage.getItem('initialSeconds')
-if(initialSecondsLocal !== null) {
+if (initialSecondsLocal !== null) {
 	initialSeconds  = initialSecondsLocal;
 	logMessage("Core", "Found initialSeconds in localStorage.")
 } else {
 	initialSeconds = initialSecondsConfig;
 }
+var initialTotalTimeLocal = window.localStorage.getItem('initialTotalTime');
+if (initialTotalTimeLocal !== null) {
+    initialTotalTime = parseFloat(initialTotalTimeLocal);
+    logMessage("Core", "Found initialTotalTime in localStorage.");
+} else {
+    initialTotalTime = 0;
+}
+// Load max duration configuration
+var maxHoursLocal = window.localStorage.getItem('maxHours');
+if (maxHoursLocal !== null) {
+    maxHours = parseInt(maxHoursLocal);
+    logMessage("Core", "Found maxHours in localStorage.");
+} else {
+    maxHours = maxHoursConfig;
+}
+
+var maxMinutesLocal = window.localStorage.getItem('maxMinutes');
+if (maxMinutesLocal !== null) {
+    maxMinutes = parseInt(maxMinutesLocal);
+    logMessage("Core", "Found maxMinutes in localStorage.");
+} else {
+    maxMinutes = maxMinutesConfig;
+}
+
+var maxSecondsLocal = window.localStorage.getItem('maxSeconds');
+if (maxSecondsLocal !== null) {
+    maxSeconds = parseInt(maxSecondsLocal);
+    logMessage("Core", "Found maxSeconds in localStorage.");
+} else {
+    maxSeconds = maxSecondsConfig;
+}
 
 resetBtn.addEventListener("click", function(){
+	
+	if (happy_hour_active) specialHourHandler('Happy');
+	if (random_hour_active) specialHourHandler('Random');
+	countdownEnded = false;
 	
 	initialHours = initialHoursConfig;
 	initialMinutes = initialMinutesConfig;
 	initialSeconds = initialSecondsConfig;
 	
 	let timeNow = new Date(Date.now());
+
+	totalElapsedTime = 0;
+    initialTotalTime = 0;
 		
 	endingTime = timeFunc.addHours(timeNow, initialHours);
 	endingTime = timeFunc.addMinutes(timeNow, initialMinutes);
 	endingTime = timeFunc.addSeconds(timeNow, initialSeconds); 
-	
+
 	window.localStorage.removeItem('initialHours');
 	window.localStorage.removeItem('initialMinutes');
 	window.localStorage.removeItem('initialSeconds');
-	
+
+	maxHours = maxHoursConfig;
+    maxMinutes = maxMinutesConfig;
+    maxSeconds = maxSecondsConfig;
+    
+    window.localStorage.removeItem('maxHours');
+    window.localStorage.removeItem('maxMinutes');
+    window.localStorage.removeItem('maxSeconds');
+
+	window.localStorage.removeItem('remainingTime');
+    window.localStorage.removeItem('initialStartTime');
+    window.localStorage.removeItem('lastSaveTime');
+
 	logMessage("Core", "Timer Reset.");
 });
 
-
 startBtn.addEventListener("click", function(){
+    let savedRemainingTime = window.localStorage.getItem('remainingTime');
+    let savedInitialStartTime = window.localStorage.getItem('initialStartTime');
+    let savedLastSaveTime = window.localStorage.getItem('lastSaveTime');
 
-	if(paused == true){
-		initialHours = window.localStorage.getItem('initialHours')
-		initialMinutes = window.localStorage.getItem('initialMinutes')
-		initialSeconds = window.localStorage.getItem('initialSeconds')
-	}
-	
-	let timeNow = new Date(Date.now());
-	
-	document.getElementById("startPage").style.visibility = "hidden";
-	document.getElementById("container").style.visibility = "visible";
-	
-	endingTime = timeFunc.addHours(timeNow, initialHours);
-	endingTime = timeFunc.addMinutes(timeNow, initialMinutes);
-	endingTime = timeFunc.addSeconds(timeNow, initialSeconds); 
+    if (paused) {
+        endingTime = new Date(Date.now() + remainingTimeOnPause);
+        paused = false;
+        logMessage("Core", `Timer Resumed with ${remainingTimeOnPause / 1000} seconds remaining`);
+    } else if (savedRemainingTime && savedInitialStartTime && savedLastSaveTime) {
+        // Load the saved state
+        let elapsedSinceLastSave = Date.now() - parseInt(savedLastSaveTime);
+        let remainingTime = Math.max(0, parseInt(savedRemainingTime) - elapsedSinceLastSave);
+        
+        initialStartTime = new Date(parseInt(savedInitialStartTime));
+        endingTime = new Date(Date.now() + remainingTime);
+        
+        logMessage("Core", "Loaded saved timer state");
+    } else {
+        // No saved state, start fresh
+        var initialHoursLocal = window.localStorage.getItem('initialHours')
+        if (initialHoursLocal !== null) {
+            initialHours  = parseInt(initialHoursLocal);
+            logMessage("Core", "Found initialHours in localStorage.")
+        } else {
+            initialHours = initialHoursConfig;
+        }
+        var initialMinutesLocal = window.localStorage.getItem('initialMinutes')
+        if (initialMinutesLocal !== null) {
+            initialMinutes = parseInt(initialMinutesLocal);
+            logMessage("Core", "Found initialMinutes in localStorage.")
+        } else {
+            initialMinutes = initialMinutesConfig;
+        }
+        var initialSecondsLocal = window.localStorage.getItem('initialSeconds')
+        if (initialSecondsLocal !== null) {
+            initialSeconds  = parseInt(initialSecondsLocal);
+            logMessage("Core", "Found initialSeconds in localStorage.")
+        } else {
+            initialSeconds = initialSecondsConfig;
+        }
+        
+        initialStartTime = new Date();
+        
+        // Calculate initial time in seconds
+        let initialTimeInSeconds = initialHours * 3600 + initialMinutes * 60 + initialSeconds;
+        
+        // Calculate max duration
+        let maxDuration = calculateMaxDuration();
+        
+        // If maxDuration is set, limit the initial time
+        if (maxDuration !== null) {
+            initialTimeInSeconds = Math.min(initialTimeInSeconds, maxDuration);
+        }
+        
+        // Set endingTime based on the (potentially limited) initial time
+        endingTime = new Date(initialStartTime.getTime() + initialTimeInSeconds * 1000);
+    }
 
-	paused = false;
-	
+    document.getElementById("startPage").style.visibility = "hidden";
+    document.getElementById("container").style.visibility = "visible";
+    
+    paused = false;
+    
+    countdownUpdater = setInterval(() => {
+        getNextTime();
+    }, 1); 
+    
+    logMessage("Core", "Timer Started/Resumed");
 });
 
-
-Mousetrap.bind('ctrl+alt+p', function(e) {
-	paused = true;
-	logMessage("Core", "Timer was paused");
-	document.getElementById("startPage").style.visibility = "visible";
-	document.getElementById("container").style.visibility = "hidden";
+Mousetrap.bind(pauseShort, function(e) {
+    if (!paused) {
+        paused = true;
+        remainingTimeOnPause = endingTime - Date.now();
+        logMessage("Core", "Timer was paused");
+        document.getElementById("startPage").style.visibility = "visible";
+        clearInterval(countdownUpdater);
+        updateDisplayWhilePaused(); // Add this line to update the display immediately when paused
+    }
 });
 
-Mousetrap.bind('ctrl+alt+h', async function(e){
-	if(happy_hour == true && happy_hour_active == false){
-		logMessage("Core","Happy Hour activated");
-		happy_hour_active = true;
-		document.getElementById("HappyHourText").innerHTML = "Happy Hour Activated!";
-		document.getElementById("HappyHourText").animate({opacity: [ 0, 1 ], easing: [ 'ease-in', 'ease-out' ],}, 500);
-		document.getElementById("HappyHourText").style.opacity = "1";
-		document.getElementById("HappyHourHTML").animate({top: [ "-200px", "-250px" ], easing: [ 'ease-in', 'ease-out' ],}, 500);
-		document.getElementById("HappyHourHTML").style.top = "-250px";
-		document.getElementById("container").style.backgroundImage = "-webkit-linear-gradient(-45deg, transparent 33%, rgba(0, 0, 0, .1) 33%, rgba(0,0, 0, .1) 66%, transparent 66%), -webkit-linear-gradient(top, rgba(255, 255, 255, .25), rgba(0, 0, 0, .25)), url(https://drive.google.com/uc?id=1oduFlPg84O1DliM5FsLvJJsnwZ4m1Vpm), -webkit-linear-gradient(left, #0074cc, #a700cc)";
-		await sleep(10000)
-		document.getElementById("HappyHourText").animate({opacity: [ 1, 0 ], easing: [ 'ease-in', 'ease-out' ],}, 500);
-		document.getElementById("HappyHourText").style.opacity = "0";
+Mousetrap.bind(happyHourShort, async function(e){
+	specialHourHandler('Happy');
+});
+
+Mousetrap.bind(randomHourShort, async function(e){
+	specialHourHandler('Random');
+});
+
+Mousetrap.bind(addHourShort, function(e) {
+    adjustTimeManually(3600); // 3600 seconds = 1 hour
+    return false; // Prevent default action
+});
+
+Mousetrap.bind(addMinuteShort, function(e) {
+    adjustTimeManually(60); // 60 seconds = 1 minute
+    return false; // Prevent default action
+});
+
+Mousetrap.bind(addSecondShort, function(e) {
+    adjustTimeManually(1); // 1 second
+    return false; // Prevent default action
+});
+
+Mousetrap.bind(subHourShort, function(e) {
+    adjustTimeManually(-3600); // 3600 seconds = 1 hour
+    return false; // Prevent default action
+});
+
+Mousetrap.bind(subMinuteShort, function(e) {
+    adjustTimeManually(-60); // 60 seconds = 1 minute
+    return false; // Prevent default action
+});
+
+Mousetrap.bind(subSecondShort, function(e) {
+    adjustTimeManually(-1); // 1 second
+    return false; // Prevent default action
+});
+
+function adjustTimeManually(seconds) {
+    if (paused && !allowTimeAddWhilePaused) {
+        logMessage("Core", "Cannot adjust time while paused");
+        return;
+    }
+
+    let currentTime = new Date();
+    let newEndingTime;
+
+    if (paused) {
+        remainingTimeOnPause = Math.max(0, remainingTimeOnPause + seconds * 1000);
+        updateDisplayWhilePaused();
+        logMessage("Core", `Adjusted ${Math.abs(seconds)} seconds while paused`);
+    } else {
+        newEndingTime = new Date(endingTime.getTime() + seconds * 1000);
+        
+        // Ensure the new ending time is not in the past
+        if (newEndingTime > currentTime) {
+            endingTime = newEndingTime;
+        } else {
+            endingTime = new Date(currentTime.getTime() + 1000); // Set to 1 second from now
+        }
+        
+        // Update the display immediately
+        getNextTime();
+        
+        logMessage("Core", `Adjusted ${Math.abs(seconds)} seconds while running`);
+    }
+
+    let action = seconds > 0 ? "Added" : "Subtracted";
+    logMessage("Core", `Manually ${action} ${Math.abs(seconds)} seconds ${paused ? "while paused" : "to the timer"}`);
+}
+
+async function specialHourHandler(type){
+	if ((type === 'Happy' && happy_hour) || (type === 'Random' && random_hour)){
+		specialHourFunc(type)
 	}
-	else if(happy_hour == true && happy_hour_active == true){
-		logMessage("Core", "Happy Hour deactivated")
-		happy_hour_active = false;
-		document.getElementById("HappyHourText").innerHTML = "Happy Hour Deactivated";
-		document.getElementById("HappyHourText").animate({opacity: [ 0, 1 ], easing: [ 'ease-in', 'ease-out' ],}, 500);
-		document.getElementById("HappyHourText").style.opacity = "1";
-		document.getElementById("HappyHourHTML").animate({top: [ "-200px", "-250px" ], easing: [ 'ease-in', 'ease-out' ],}, 500);
-		document.getElementById("HappyHourHTML").style.top = "-250px";
-		document.getElementById("container").style.backgroundImage = "-webkit-linear-gradient(-45deg, transparent 33%, rgba(0, 0, 0, .1) 33%, rgba(0,0, 0, .1) 66%, transparent 66%), -webkit-linear-gradient(top, rgba(255, 255, 255, .25), rgba(0, 0, 0, .25)), -webkit-linear-gradient(left, #0074cc, #a700cc)";
+	else {
+		logMessage("Core", `${type} Hour is not available`)
+		document.getElementById("SpecialHourText").innerHTML = `${type} Hour error`;
+		document.getElementById("SpecialHourText").animate({opacity: [ 0, 1 ], easing: [ 'ease-in', 'ease-out' ],}, 500);
+		document.getElementById("SpecialHourText").style.opacity = "1";
+		document.getElementById("SpecialHourHTML").animate({top: [ "-200px", "-250px" ], easing: [ 'ease-in', 'ease-out' ],}, 500);
+		document.getElementById("SpecialHourHTML").style.top = "-250px";
 		await sleep(5000)
-		document.getElementById("HappyHourText").animate({opacity: [ 1, 0 ], easing: [ 'ease-in', 'ease-out' ],}, 500);
-		document.getElementById("HappyHourText").style.opacity = "0";
+		document.getElementById("SpecialHourText").animate({opacity: [ 1, 0 ], easing: [ 'ease-in', 'ease-out' ],}, 500);
+		document.getElementById("SpecialHourText").style.opacity = "0";
 	}
-	else if(happy_hour == false){
-		logMessage("Core", "Happy Hour is not available")
-		document.getElementById("HappyHourText").innerHTML = "Happy Hour error";
-		document.getElementById("HappyHourText").animate({opacity: [ 0, 1 ], easing: [ 'ease-in', 'ease-out' ],}, 500);
-		document.getElementById("HappyHourText").style.opacity = "1";
-		document.getElementById("HappyHourHTML").animate({top: [ "-200px", "-250px" ], easing: [ 'ease-in', 'ease-out' ],}, 500);
-		document.getElementById("HappyHourHTML").style.top = "-250px";
-		await sleep(5000)
-		document.getElementById("HappyHourText").animate({opacity: [ 1, 0 ], easing: [ 'ease-in', 'ease-out' ],}, 500);
-		document.getElementById("HappyHourText").style.opacity = "0";
-	}
-});
+}
 
+function calculateMaxDuration() {
+    if (maxHours === null && maxMinutes === null && maxSeconds === null) {
+        return null;  // Uncapped
+    }
+    return (maxHours || 0) * 3600 + (maxMinutes || 0) * 60 + (maxSeconds || 0);
+}
 
-let countdownEnded = false;
+function updateDisplayWhilePaused() {
+    let currentTime = new Date();
+    let differenceTime = remainingTimeOnPause;
+
+    time = `${timeFunc.getHours(differenceTime)}:${timeFunc.getMinutes(differenceTime)}:${timeFunc.getSeconds(differenceTime)}`;
+    timeText.innerText = time;
+}
+
+async function specialHourFunc(type) {
+    let activate = ((type === 'Happy' && !happy_hour_active) || (type === 'Random' && !random_hour_active));
+    let toggleText = activate ? 'Activated' : 'Deactivated';
+
+    logMessage("Core", `${type} Hour ${toggleText}`);
+
+    if (type === 'Happy') happy_hour_active = activate;
+    if (type === 'Random') random_hour_active = activate;
+
+    let animation = (happy_hour_active || random_hour_active) 
+        ? 'moving-gradient 3s linear infinite'
+        : 'none';
+
+    document.getElementById("SpecialHourText").innerHTML = `${type} Hour ${toggleText}!`;
+    document.getElementById("SpecialHourText").animate({opacity: [0, 1]}, {duration: 500, easing: 'ease-in-out'});
+    document.getElementById("SpecialHourText").style.opacity = "1";
+
+    document.getElementById("SpecialHourHTML").animate({top: ["-200px", "-250px"]}, {duration: 500, easing: 'ease-in-out'});
+    document.getElementById("SpecialHourHTML").style.top = "-250px";
+
+    const container = document.getElementById("container");
+    container.classList.toggle('happyHour', activate);
+    container.style.animation = animation;
+
+    await sleep(activate ? 5000 : 10000);
+
+    document.getElementById("SpecialHourText").animate({opacity: [1, 0]}, {duration: 500, easing: 'ease-in-out'});
+    document.getElementById("SpecialHourText").style.opacity = "0";
+}
+
 let users = [];
 let time;
-
 
 let endingTime = new Date(Date.now());
 endingTime = timeFunc.addHours(endingTime, initialHours);
 endingTime = timeFunc.addMinutes(endingTime, initialMinutes);
 endingTime = timeFunc.addSeconds(endingTime, initialSeconds);
 
+function getRandomInt(min, max) {
+	min = Math.ceil(min);
+	max = Math.floor(max);
+	return Math.floor(Math.random() * (max - min)) + min;
+}
+
+var randomHappyBool = false
+var scheduleHappyBool = false
+
 const getNextTime = () => {
 	
 	let currentTime = new Date(Date.now());
 	let differenceTime = endingTime - currentTime;
+
+	// Check if maxTimerDuration is set and if it's been exceeded
+    let maxDuration = calculateMaxDuration();
+    if (maxDuration !== null) {
+        let totalElapsedTime = (currentTime - initialStartTime) / 1000; // in seconds
+        let maxRemainingTime = Math.max(0, maxDuration - totalElapsedTime) * 1000; // in milliseconds
+        differenceTime = Math.min(differenceTime, maxRemainingTime);
+        endingTime = new Date(currentTime.getTime() + differenceTime);
+    }
+
 	time = `${timeFunc.getHours(differenceTime)}:${timeFunc.getMinutes(differenceTime)}:${timeFunc.getSeconds(differenceTime)}`;
-	if (differenceTime <= 0) {
-		clearInterval(countdownUpdater);
-		countdownEnded = true;
-		time = "00:00:00";
-	}
-	if(paused == false){
+    if (differenceTime <= 0) {
+        time = "00:00:00";
+        if (differenceTime <= (syncTime * 1000 * -1)) {
+            clearInterval(countdownUpdater);
+            countdownEnded = true;
+            logMessage("Core", "Timer Ended");
+        }
+    }
+
+	if (!paused){
 		window.localStorage.setItem('initialHours', timeFunc.getHours(differenceTime));
 		window.localStorage.setItem('initialMinutes', timeFunc.getMinutes(differenceTime));
 		window.localStorage.setItem('initialSeconds', timeFunc.getSeconds(differenceTime));
+		window.localStorage.setItem('initialTotalTime', totalElapsedTime.toString());
+		window.localStorage.setItem('remainingTime', differenceTime.toString());
+        window.localStorage.setItem('initialStartTime', initialStartTime.getTime().toString());
+        window.localStorage.setItem('lastSaveTime', currentTime.getTime().toString());
+
+		if (randHappy && happy_hour && !randomHappyBool){
+			randomHappyBool = true
+			setTimeout(randomHappy,1000)
+		}
+		if (scheduleHappy && happy_hour && !scheduleHappyBool){
+			scheduleHappyBool = true
+			scheduleHappyFunc()
+		}
 	}
 	timeText.innerText = time;
 	
 };
 
-let countdownUpdater = setInterval(() => {
-	getNextTime();
-}, 1); 
+function randomHappy(){
+	if (!happy_hour_active){
+		if ((getRandomInt(0,10000) == 127)){
+			logMessage("RandomHappy","It's not rigged!")
+			specialHourFunc()
+			setTimeout(specialHourFunc, 3600000)
+		}
+	setTimeout(randomHappy,1000)
+	}
+}
 
+function scheduleHappyFunc(){
+	let now = new Date()
+	if (now.getDay() == scheduleHappyDay){
+		if (now.getUTCHours() == scheduleHappyHour){
+			if (now.getUTCMinutes() == 0){
+				logMessage("Schedule","It's time!")
+				specialHourFunc()
+				setTimeout(specialHourFunc, 3600000)
+				setTimeout(scheduleHappyFunc, 36000000)
+			}
+		}
+	}
+}
 
 var firstSub = true;
 var endingTimeBeforeCounter;
@@ -158,18 +414,23 @@ var addedTimeCounter;
 var timeoutID;
 
 const addTime = async (time, s) => {
-    if(!bulk_enabled) {
+    let addedTime = Math.floor(s);
+    if (!bulk_enabled) {
+        if (paused && !allowTimeAddWhilePaused) {
+            logMessage("Core", "Cannot add time while paused");
+            return;
+        }
         endingTimeBeforeCounter = time;
-        addedTimeCounter = s;
+        addedTimeCounter = addedTime;
         addTimeInternal();
         return;
     }
-    if(firstSub) {
+    if (firstSub) {
         firstSub = false;
         endingTimeBeforeCounter = time;
-        addedTimeCounter = s;
+        addedTimeCounter = addedTime;
     } else {
-        addedTimeCounter += s;
+        addedTimeCounter += addedTime;
         window.clearTimeout(timeoutID);
     }
     timeoutID = window.setTimeout(addTimeInternal, 1000);
@@ -182,18 +443,9 @@ const addTimeInternal = async () => {
     firstSub = true;
     
     let addedTime = document.createElement("p");
-	if(happy_hour == true && happy_hour_active == true) {
-		addedTime.classList = "gold";
-	}
-	else if(happy_hour == true && happy_hour_active == false) {
-		addedTime.classList = "addedTime";
-	}
-	else if(happy_hour == false && happy_hour_active == true) {
-		addedTime.classList = "addedTime";
-	}
-	else if(happy_hour == false && happy_hour_active == false) {
-		addedTime.classList = "addedTime";
-	}
+    
+    happy_hour_active ? addedTime.classList = "gold" : addedTime.classList = "addedTime";
+    
     addedTime.innerText = `+${s}s`;
     document.body.appendChild(addedTime);
     addedTime.style.display = "block";
@@ -201,12 +453,34 @@ const addTimeInternal = async () => {
     addedTime.style.left = `${randomInRange(35, 65)}%`;
     addedTime.style.top = `${randomInRange(15, 40)}%`;
     addedTime.style.opacity = "1";
-    while(s > 0){
-        timeStep = s > 60 ? s/30 : 2
-        endingTime = timeFunc.addSeconds(time, timeStep)
-        await sleep(50);
-        s -= timeStep
+
+    let currentTime = new Date();
+    let remainingTime = endingTime - currentTime;
+    
+    let maxDuration = calculateMaxDuration();
+    if (maxDuration !== null) {
+        let currentElapsedTime = (currentTime - initialStartTime) / 1000;
+        let maxRemainingTime = Math.max(0, maxDuration - currentElapsedTime); // in seconds
+        s = Math.min(s, maxRemainingTime);
     }
+
+    if (paused) {
+        if (allowTimeAddWhilePaused) {
+            remainingTimeOnPause += s * 1000;
+            logMessage("Core", `Added ${s} seconds while paused`);
+            updateDisplayWhilePaused();
+        } else {
+            logMessage("Core", "Cannot add time while paused");
+        }
+    } else {
+        while (s > 0) {
+            let timeStep = s > 60 ? s / 30 : 2; // Adjust animation speed
+            endingTime = timeFunc.addSeconds(endingTime, timeStep);
+            await sleep(50);
+            s -= timeStep;
+        }
+    }
+
     await sleep(200);
     addedTime.style.opacity = "0";
     await sleep(200);

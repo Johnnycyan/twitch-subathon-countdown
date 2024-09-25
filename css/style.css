@@ -1,229 +1,244 @@
 * {
-    font-family: 'Ubuntu', sans-serif !important;
+  font-family: "Ubuntu", sans-serif !important;
 }
 
-body, body * {
-    padding: 0;
-    margin: 0;
-    font-family: 'Manrope', sans-serif;
+body,
+body * {
+  padding: 0;
+  margin: 0;
+  font-family: "Manrope", sans-serif;
 }
 
 body {
-    width: 100vw;
-    height: 100vh;
+  width: 100vw;
+  height: 100vh;
 }
-
-
 
 :root {
-    --background-color: #A020F0;
-    --shadow-color: #00000090;
-    --text-color: #FFFFFF;
+  --background-color: #a020f0;
+  /* --shadow-color: #00000090; /* Default: #00000090; */
+  /* --text-color: #ffffff; /* Default: #ffffff; */
+  /* --accent-color-1: #0074cc; /* Default: #0074cc; */
+  /* --accent-color-2: #a700cc; /* Default: #a700cc; */
+  /* --border-size: 4px; /* Default: 4px; */
 }
-
-
 
 #container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    /*background-color: var(--background-color);*/
-    background-image:
-         -webkit-linear-gradient(-45deg, 
-                           transparent 33%, rgba(0, 0, 0, .1) 33%, 
-                           rgba(0,0, 0, .1) 66%, transparent 66%),
-         -webkit-linear-gradient(top, 
-                           rgba(255, 255, 255, .25), 
-                           rgba(0, 0, 0, .25)),
-         -webkit-linear-gradient(left, #0074cc, #a700cc);
-    box-shadow: 0 0 1.25rem 0.5rem var(--shadow-color);
-    width: 500px;
-    height: 180px;
-    border-radius: 30px;
-    visibility: hidden;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-image: -webkit-linear-gradient(
+      -45deg,
+      transparent 33%,
+      rgba(0, 0, 0, 0.1) 33%,
+      rgba(0, 0, 0, 0.1) 66%,
+      transparent 66%
+    ),
+    -webkit-linear-gradient(top, rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.25)),
+    -webkit-linear-gradient(left, var(--accent-color-1), var(--accent-color-2));
+  box-shadow: 0 0 1.25rem 0.5rem var(--shadow-color);
+  width: 500px;
+  height: 180px;
+  border-radius: 30px;
+  visibility: hidden;
+  border: var(--border-size) black solid;
 }
 
-#HappyHourText {
-    opacity: 0;
-    font-size: 2.8rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
+#SpecialHourText {
+  opacity: 0;
+  font-size: 2.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }
 
-/* #HappyHourDeactive {
-    visibility: hidden;
-    font-size: 3rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-}
-
-#HappyHourError {
-    visibility: hidden;
-    font-size: 3rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-} */
-
-#HappyHourHTML {
-    top:-200px;
-    position: relative;
+#SpecialHourHTML {
+  top: -200px;
+  position: relative;
 }
 
 #startPage {
-    position: absolute;
-    align-items: center;
-    top: 75%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    /*background-color: var(--background-color);*/
-    width: 150px;
-    height: 50px;
-    border-radius: 30px;
-    background:none;
+  position: absolute;
+  align-items: center;
+  top: 75%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 150px;
+  height: 50px;
+  border-radius: 30px;
+  background: none;
 }
 
 #textDiv {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }
 
 .button {
-         border-radius: 30px;
-         box-shadow: 0 0 1.25rem 0.5rem var(--shadow-color);
-         justify-content: center;
-         align-items: center;
-         display: flex;
-         height: 100%;
-         width: 150px;
-         height: 50px;
-         top: 50%;
-         left: 50%;
-         color:white;
-         /*background-image:
+  border-radius: 30px;
+  box-shadow: 0 0 1.25rem 0.5rem var(--shadow-color);
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  height: 100%;
+  width: 150px;
+  height: 50px;
+  top: 50%;
+  left: 50%;
+  color: white;
+  /*background-image:
          -webkit-linear-gradient(-45deg, 
                            transparent 33%, rgba(0, 0, 0, .1) 33%, 
                            rgba(0,0, 0, .1) 66%, transparent 66%),
          -webkit-linear-gradient(top, 
                            rgba(255, 255, 255, .25), 
                            rgba(0, 0, 0, .25)),
-         -webkit-linear-gradient(left, #0074cc, #a700cc);*/
-         background:none;
+         -webkit-linear-gradient(left, var(--accent-color-1), var(--accent-color-2));*/
+  background: none;
 }
 
-#firstButtonDiv, #secondButtonDiv {
-    background-image:
-         -webkit-linear-gradient(-45deg, 
-                           transparent 33%, rgba(0, 0, 0, .1) 33%, 
-                           rgba(0,0, 0, .1) 66%, transparent 66%),
-         -webkit-linear-gradient(top, 
-                           rgba(255, 255, 255, .25), 
-                           rgba(0, 0, 0, .25)),
-         -webkit-linear-gradient(left, #0074cc, #a700cc);
-         width: 150px;
-         height: 50px;
-         display: inline-block;
+#firstButtonDiv,
+#secondButtonDiv {
+  background-image: -webkit-linear-gradient(
+      -45deg,
+      transparent 33%,
+      rgba(0, 0, 0, 0.1) 33%,
+      rgba(0, 0, 0, 0.1) 66%,
+      transparent 66%
+    ),
+    -webkit-linear-gradient(top, rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.25)),
+    -webkit-linear-gradient(left, var(--accent-color-1), var(--accent-color-2));
+  width: 150px;
+  height: 50px;
+  display: inline-block;
 }
 
-#firstButtonDiv:hover, #secondButtonDiv:hover {
-    background-image:
-         -webkit-linear-gradient(-45deg, 
-                           transparent 33%, rgba(0, 0, 0, .1) 33%, 
-                           rgba(0,0, 0, .1) 66%, transparent 66%),
-         -webkit-linear-gradient(top, 
-                           rgba(255, 255, 255, .25), 
-                           rgba(0, 0, 0, .25)),
-         -webkit-linear-gradient(left, #0061ac, #8e00ad)!important;
+#firstButtonDiv:hover,
+#secondButtonDiv:hover {
+  background-image: -webkit-linear-gradient(
+      -45deg,
+      transparent 33%,
+      rgba(0, 0, 0, 0.1) 33%,
+      rgba(0, 0, 0, 0.1) 66%,
+      transparent 66%
+    ),
+    -webkit-linear-gradient(top, rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.25)),
+    -webkit-linear-gradient(left, var(--accent-color-1), var(--accent-color-2)) !important;
 }
 
-#firstButtonDiv, #secondButtonDiv {
-    border-radius: 30px;
-    justify-content: center;
-    align-items: center;
-    display: flex;
-    height: 100%;
-    width: 150px;
-    height: 50px;
-    top: 50%;
-    left: 50%;
-    color:white;
-    background-image:
-         -webkit-linear-gradient(-45deg, 
-                           transparent 33%, rgba(0, 0, 0, .1) 33%, 
-                           rgba(0,0, 0, .1) 66%, transparent 66%),
-         -webkit-linear-gradient(top, 
-                           rgba(255, 255, 255, .25), 
-                           rgba(0, 0, 0, .25)),
-         -webkit-linear-gradient(left, #0074cc, #a700cc);
+#firstButtonDiv,
+#secondButtonDiv {
+  border-radius: 30px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  height: 100%;
+  width: 150px;
+  height: 50px;
+  top: 50%;
+  left: 50%;
+  color: white;
+  background-image: -webkit-linear-gradient(
+      -45deg,
+      transparent 33%,
+      rgba(0, 0, 0, 0.1) 33%,
+      rgba(0, 0, 0, 0.1) 66%,
+      transparent 66%
+    ),
+    -webkit-linear-gradient(top, rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.25)),
+    -webkit-linear-gradient(left, var(--accent-color-1), var(--accent-color-2));
 }
 
 #secondButtonDiv {
-    margin-top:10px;
+  margin-top: 10px;
 }
 
 p {
-    color: var(--text-color);
-    font-size: 5.8rem;
-    z-index: 1;
-    text-shadow: 0px 0px 10px var(--shadow-color);
+  color: var(--text-color);
+  font-size: 5.8rem;
+  z-index: 1;
+  text-shadow: 0px 0px 10px var(--shadow-color);
 }
 
 img {
-    position: absolute;
-    top: 0;
-    bottom: 0;
+  position: absolute;
+  top: 0;
+  bottom: 0;
 }
 
 canvas {
-    width: 500px;
-    height: 180px;
-    border-radius: 20px;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    z-index: 2;
+  width: 500px;
+  height: 180px;
+  border-radius: 20px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
 }
 
-
-
 .addedTime {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    display: none;
-    z-index: 5;
-    font-weight: 400;
-    font-size: 3.25rem;
-    /*color: var(--background-color);*/
-    color:white;
-    transition: top 1s ease-out, opacity .5s ease-out;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  display: none;
+  z-index: 5;
+  font-weight: 400;
+  font-size: 3.25rem;
+  /*color: var(--background-color);*/
+  color: white;
+  transition: top 1s ease-out, opacity 0.5s ease-out;
 }
 
 .gold {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    display: none;
-    z-index: 5;
-    font-weight: 400;
-    font-size: 3.25rem;
-    /*color: var(--background-color);*/
-    color:gold;
-    background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    transition: top 1s ease-out, opacity .5s ease-out;
-    text-shadow:none !important;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  display: none;
+  z-index: 5;
+  font-weight: 400;
+  font-size: 3.25rem;
+  /*color: var(--background-color);*/
+  color: gold;
+  background: linear-gradient(
+    to right,
+    #bf953f,
+    #fcf6ba,
+    #b38728,
+    #fbf5b7,
+    #aa771c
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: top 1s ease-out, opacity 0.5s ease-out;
+  text-shadow: none !important;
+}
+
+@keyframes moving-gradient {
+  0% {
+    background-position: 33% 0px, 33% 0px, 0% 50%;
+  }
+  100% {
+    background-position: 33% 0px, 33% 0px, -150% 50%;
+  }
+}
+
+.happyHour {
+  background-size: 100% 100%, 100% 100%, 300% 100%;
+  background-image: -webkit-linear-gradient(
+      -45deg,
+      transparent 33%,
+      rgba(0, 0, 0, 0.1) 33%,
+      rgba(0, 0, 0, 0.1) 66%,
+      transparent 66%
+    ),
+    -webkit-linear-gradient(top, rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.25)),
+    -webkit-linear-gradient(left, var(--accent-color-1), var(--accent-color-2), var(--accent-color-1)) !important;
 }

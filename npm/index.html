@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subathon Countdown Settings</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --card-bg: #2a2a2a;
+            --text-color: #ffffff;
+            --primary-color: #00d9ff;
+            --input-bg: #3a3a3a;
+            --input-border: #4a4a4a;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            margin: 0;
+            color-scheme: dark;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1,
+        h2 {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            padding-top: 1px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 16px;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"],
+        input[type="text"] {
+            width: calc(100% - 20px) !important;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(92, 124, 250, 0.2);
+        }
+
+        input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #00a6ff;
+            transform: translateY(-2px);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        [title] {
+            cursor: help;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            width: 300px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-content p {
+            margin-bottom: 20px;
+        }
+
+        .modal-content button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--primary-color);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .modal-content button:hover {
+            background-color: #00a6ff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <h2>Style Settings</h2>
+            <label title="Shadow color for elements. Default: #00000090">Shadow Color: <input type="color"
+                    id="shadow-color" value="#00000090"></label>
+            <label title="Text color. Default: #ffffff">Text Color: <input type="color" id="text-color"
+                    value="#ffffff"></label>
+            <label title="Primary accent color. Default: #0074cc">Accent Color 1: <input type="color"
+                    id="accent-color-1" value="#0074cc"></label>
+            <label title="Secondary accent color. Default: #a700cc">Accent Color 2: <input type="color"
+                    id="accent-color-2" value="#a700cc"></label>
+            <label title="Border size in pixels. Default: 4">Border Size: <input type="number" id="border-size" min="0"
+                    max="20" value="4"></label>
+        </div>
+
+        <div class="card">
+            <h2>Happy Hour Settings</h2>
+            <label title="Enable or disable the happy hours function"><input type="checkbox" id="happy_hour"> Enable
+                Happy Hour</label>
+            <label title="Enable or disable random hour function"><input type="checkbox" id="random_hour"> Enable Random
+                Hour</label>
+            <label title="Make every happy hour also random. Only works if Happy Hour is enabled"><input type="checkbox"
+                    id="randHappy"> Enable Random Happy Hour</label>
+            <label title="Schedule automatic Happy Hours. Only works if Happy Hour is enabled"><input type="checkbox"
+                    id="scheduleHappy"> Enable Scheduled Happy Hour</label>
+            <label title="Weekdays from Sunday to Saturday">Scheduled Happy Day:
+                <select id="scheduleHappyDay">
+                    <option value="0">Sunday</option>
+                    <option value="1">Monday</option>
+                    <option value="2">Tuesday</option>
+                    <option value="3">Wednesday</option>
+                    <option value="4">Thursday</option>
+                    <option value="5">Friday</option>
+                    <option value="6">Saturday</option>
+                </select>
+            </label>
+            <label title="Hours in 24 format UTC Time">Scheduled Happy Hour: <input type="number" id="scheduleHappyHour"
+                    min="0" max="23"></label>
+        </div>
+
+        <div class="card">
+            <h2>Bulk Settings</h2>
+            <label title="If you want multiple subs to add to a big sum or each alone"><input type="checkbox"
+                    id="bulk_enabled"> Enable Bulk</label>
+        </div>
+
+        <div class="card">
+            <h2>Shortcuts</h2>
+            <label title="Shortcut to pause the timer">Pause: <input type="text" id="pauseShort"></label>
+            <label title="Shortcut to trigger happy hour">Happy Hour: <input type="text" id="happyHourShort"></label>
+            <label title="Shortcut to trigger random hour">Random Hour: <input type="text" id="randomHourShort"></label>
+            <label title="Shortcut to add an hour">Add Hour: <input type="text" id="addHourShort"></label>
+            <label title="Shortcut to add a minute">Add Minute: <input type="text" id="addMinuteShort"></label>
+            <label title="Shortcut to add a second">Add Second: <input type="text" id="addSecondShort"></label>
+            <label title="Shortcut to subtract an hour">Subtract Hour: <input type="text" id="subHourShort"></label>
+            <label title="Shortcut to subtract a minute">Subtract Minute: <input type="text"
+                    id="subMinuteShort"></label>
+            <label title="Shortcut to subtract a second">Subtract Second: <input type="text"
+                    id="subSecondShort"></label>
+        </div>
+
+        <div class="card">
+            <h2>Login Data</h2>
+            <label title="Your Twitch channel name">Twitch Channel Name: <input type="text"
+                    id="twitch_channel_name"></label>
+            <label title="Your Streamlabs API token (Optional)">Streamlabs Token (Optional): <input type="text"
+                    id="streamlabs_token"></label>
+            <label title="Your StreamElements API token (Optional)">StreamElements Token (Optional): <input type="text"
+                    id="streamelements_token"></label>
+            <label title="Your StreamLoots API token (Optional)">StreamLoots Token (Optional): <input type="text"
+                    id="streamloots_token"></label>
+        </div>
+
+        <div class="card">
+            <h2>Timer Settings</h2>
+            <label title="Uncheck if you don't want time to be added while timer is paused"><input type="checkbox"
+                    id="allowTimeAddWhilePaused"> Allow Time Add While Paused</label>
+            <label title="Start time in hours for the countdown">Initial Hours: <input type="number"
+                    id="initialHoursConfig" min="0"></label>
+            <label title="Start time in minutes for the countdown">Initial Minutes: <input type="number"
+                    id="initialMinutesConfig" min="0" max="59"></label>
+            <label title="Start time in seconds for the countdown">Initial Seconds: <input type="number"
+                    id="initialSecondsConfig" min="0" max="59"></label>
+            <label title="Remove number for uncapped, or a number for maximum hours">Max Hours: <input type="number"
+                    id="maxHoursConfig" min="0"></label>
+            <label title="Remove number for uncapped, or a number for maximum minutes">Max Minutes: <input type="number"
+                    id="maxMinutesConfig" min="0" max="59"></label>
+            <label title="Remove number for uncapped, or a number for maximum seconds">Max Seconds: <input type="number"
+                    id="maxSecondsConfig" min="0" max="59"></label>
+            <label
+                title="Amount of seconds it waits after the timer hit 0 to stop it. Useful for last Second Subs.">Sync
+                Time (seconds): <input type="number" id="syncTime" min="0"></label>
+        </div>
+
+        <div class="card">
+            <h2>Enable/Disable Features</h2>
+            <label title="Enable or disable subscription events">Enable Subs: <input type="checkbox"
+                    id="subEnable"></label>
+            <label title="Enable or disable bits events">Enable Bits: <input type="checkbox" id="bitEnable"></label>
+            <label title="Enable or disable donation events (Requires Streamlabs or StreamElements)">Enable Donations:
+                <input type="checkbox" id="donationEnable"></label>
+            <label title="Enable or disable chest events (Requires StreamLoots)">Enable Chests: <input type="checkbox"
+                    id="chestEnable"></label>
+        </div>
+
+        <div class="card">
+            <h2>Subscription Settings</h2>
+            <label>Seconds per Prime Sub: <input type="number" id="seconds_added_per_sub_prime" min="0"></label>
+            <label>Seconds per Prime Resub: <input type="number" id="seconds_added_per_resub_prime" min="0"></label>
+            <label>Seconds per Tier 1 Sub: <input type="number" id="seconds_added_per_sub_tier1" min="0"></label>
+            <label>Seconds per Tier 1 Resub: <input type="number" id="seconds_added_per_resub_tier1" min="0"></label>
+            <label>Seconds per Tier 1 Gift Sub: <input type="number" id="seconds_added_per_giftsub_tier1"
+                    min="0"></label>
+            <label>Seconds per Tier 2 Sub: <input type="number" id="seconds_added_per_sub_tier2" min="0"></label>
+            <label>Seconds per Tier 2 Resub: <input type="number" id="seconds_added_per_resub_tier2" min="0"></label>
+            <label>Seconds per Tier 2 Gift Sub: <input type="number" id="seconds_added_per_giftsub_tier2"
+                    min="0"></label>
+            <label>Seconds per Tier 3 Sub: <input type="number" id="seconds_added_per_sub_tier3" min="0"></label>
+            <label>Seconds per Tier 3 Resub: <input type="number" id="seconds_added_per_resub_tier3" min="0"></label>
+            <label>Seconds per Tier 3 Gift Sub: <input type="number" id="seconds_added_per_giftsub_tier3"
+                    min="0"></label>
+        </div>
+
+        <div class="card">
+            <h2>Bits and Donations Settings</h2>
+            <label>Minimum Bits Amount: <input type="number" id="min_amount_of_bits" min="0"></label>
+            <label>Seconds Added per Bits Amount Above: <input type="number" id="seconds_added_per_bits"
+                    min="0"></label>
+            <label>Minimum Donation Amount: <input type="number" id="min_donation_amount" min="0" step="0.01"></label>
+            <label>Seconds Added per Donation Amount Above: <input type="number" id="seconds_added_per_donation"
+                    min="0"></label>
+        </div>
+
+        <div class="card">
+            <h2>StreamLoots Settings</h2>
+            <label>Minimum Chests Amount: <input type="number" id="min_amount_of_chests" min="0"></label>
+            <label>Seconds Added per Chest: <input type="number" id="seconds_added_per_chests" min="0"></label>
+        </div>
+
+        <div class="card">
+            <h2>Happy Hour Factors</h2>
+            <label>Tier 1 Factor: <input type="number" id="factor_t1" min="0" step="0.1"></label>
+            <label>Tier 2 Factor: <input type="number" id="factor_t2" min="0" step="0.1"></label>
+            <label>Tier 3 Factor: <input type="number" id="factor_t3" min="0" step="0.1"></label>
+            <label>Bits Factor: <input type="number" id="factor_bits" min="0" step="0.1"></label>
+            <label>Donations Factor: <input type="number" id="factor_donations" min="0" step="0.1"></label>
+        </div>
+
+        <div class="card">
+            <h2>Random Hour Ranges</h2>
+            <label title="Range of randomness: min,max,skew">Tier 1 Range: <input type="text" id="range_t1"
+                    placeholder="min,max,skew"></label>
+            <label title="Range of randomness: min,max,skew">Tier 2 Range: <input type="text" id="range_t2"
+                    placeholder="min,max,skew"></label>
+            <label title="Range of randomness: min,max,skew">Tier 3 Range: <input type="text" id="range_t3"
+                    placeholder="min,max,skew"></label>
+            <label title="Range of randomness: min,max,skew">Bits Range: <input type="text" id="range_bits"
+                    placeholder="min,max,skew"></label>
+            <label title="Range of randomness: min,max,skew">Donations Range: <input type="text" id="range_donations"
+                    placeholder="min,max,skew"></label>
+        </div>
+
+        <button onclick="saveSettings()">Save Settings</button>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <p id="modal-message"></p>
+            <button onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+
+    <script src="renderer.js"></script>
+</body>
+
+</html>

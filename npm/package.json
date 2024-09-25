@@ -1,0 +1,33 @@
+{
+  "name": "subathon-countdown-settings",
+  "version": "1.0.0",
+  "main": "main.js",
+  "build": {
+    "appId": "com.johnnycyan.subathon-countdown-settings",
+    "productName": "Subathon Countdown Settings",
+    "directories": {
+      "output": "dist"
+    },
+    "extraResources": [
+      {
+        "from": "build/electron",
+        "to": "electron",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": [
+        "dir"
+      ],
+      "artifactName": "${productName}-${version}.exe"
+    }
+  },
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^32.1.2",
+    "electron-builder": "^25.0.5"
+  }
+}
