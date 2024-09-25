@@ -176,8 +176,35 @@
     <div class="container">
         <div class="card">
             <h2>Style Settings</h2>
-            <label title="Shadow color for elements. Default: #00000090">Shadow Color: <input type="color"
-                    id="shadow-color" value="#00000090"></label>
+            <label title="Shadow color for elements. Default: #000000" style="display:none;">
+                Shadow Color:
+                <input type="color" id="shadow-color-picker" value="#000000">
+                <input type="text" id="shadow-color" value="#00000090" pattern="^#[0-9A-Fa-f]{8}$"
+                    placeholder="#RRGGBBAA" style="display:none;">
+            </label>
+            <script>
+                const shadowColorPicker = document.getElementById('shadow-color-picker');
+                const shadowOpacity = document.getElementById('shadow-opacity');
+                const shadowColorInput = document.getElementById('shadow-color');
+
+                function updateShadowColor() {
+                    const color = shadowColorPicker.value;
+                    const opacity = Math.round(shadowOpacity.value * 2.55).toString(16).padStart(2, '0');
+                    shadowColorInput.value = `${color}90`;
+                }
+
+                shadowColorPicker.addEventListener('input', updateShadowColor);
+                shadowOpacity.addEventListener('input', updateShadowColor);
+
+                shadowColorInput.addEventListener('input', function () {
+                    if (this.value.match(/^#[0-9A-Fa-f]{8}$/)) {
+                        shadowColorPicker.value = this.value.slice(0, 7);
+                        shadowOpacity.value = Math.round(parseInt(this.value.slice(7), 16) / 2.55);
+                    }
+                });
+
+                updateShadowColor();
+            </script>
             <label title="Text color. Default: #ffffff">Text Color: <input type="color" id="text-color"
                     value="#ffffff"></label>
             <label title="Primary accent color. Default: #0074cc">Accent Color 1: <input type="color"
