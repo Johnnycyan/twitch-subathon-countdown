@@ -68,29 +68,28 @@ if (maxSecondsLocal !== null) {
 }
 
 resetBtn.addEventListener("click", function(){
-	
-	if (happy_hour_active) specialHourHandler('Happy');
-	if (random_hour_active) specialHourHandler('Random');
-	countdownEnded = false;
-	
-	initialHours = initialHoursConfig;
-	initialMinutes = initialMinutesConfig;
-	initialSeconds = initialSecondsConfig;
-	
-	let timeNow = new Date(Date.now());
-
-	totalElapsedTime = 0;
+    if (happy_hour_active) specialHourHandler('Happy');
+    if (random_hour_active) specialHourHandler('Random');
+    countdownEnded = false;
+    
+    initialHours = initialHoursConfig;
+    initialMinutes = initialMinutesConfig;
+    initialSeconds = initialSecondsConfig;
+    
+    totalElapsedTime = 0;
     initialTotalTime = 0;
-		
-	endingTime = timeFunc.addHours(timeNow, initialHours);
-	endingTime = timeFunc.addMinutes(timeNow, initialMinutes);
-	endingTime = timeFunc.addSeconds(timeNow, initialSeconds); 
+    remainingTimeOnPause = 0;
+    
+    // Clear localStorage
+    window.localStorage.removeItem('initialHours');
+    window.localStorage.removeItem('initialMinutes');
+    window.localStorage.removeItem('initialSeconds');
+    window.localStorage.removeItem('initialTotalTime');
+    window.localStorage.removeItem('remainingTime');
+    window.localStorage.removeItem('initialStartTime');
+    window.localStorage.removeItem('lastSaveTime');
 
-	window.localStorage.removeItem('initialHours');
-	window.localStorage.removeItem('initialMinutes');
-	window.localStorage.removeItem('initialSeconds');
-
-	maxHours = maxHoursConfig;
+    maxHours = maxHoursConfig;
     maxMinutes = maxMinutesConfig;
     maxSeconds = maxSecondsConfig;
     
@@ -98,57 +97,35 @@ resetBtn.addEventListener("click", function(){
     window.localStorage.removeItem('maxMinutes');
     window.localStorage.removeItem('maxSeconds');
 
-	window.localStorage.removeItem('remainingTime');
-    window.localStorage.removeItem('initialStartTime');
-    window.localStorage.removeItem('lastSaveTime');
+    // Clear the interval if it's running
+    if (countdownUpdater) {
+        clearInterval(countdownUpdater);
+        countdownUpdater = null;
+    }
 
-	logMessage("Core", "Timer Reset.");
+    // Reset the paused state
+    paused = false;
+
+    // Update the display immediately
+    updateDisplayAfterReset();
+
+    logMessage("Core", "Timer Reset.");
 });
 
+function updateDisplayAfterReset() {
+    let totalSeconds = initialHours * 3600 + initialMinutes * 60 + initialSeconds;
+    let time = `${timeFunc.getHours(totalSeconds * 1000)}:${timeFunc.getMinutes(totalSeconds * 1000)}:${timeFunc.getSeconds(totalSeconds * 1000)}`;
+    timeText.innerText = time;
+}
+
 startBtn.addEventListener("click", function(){
-    let savedRemainingTime = window.localStorage.getItem('remainingTime');
-    let savedInitialStartTime = window.localStorage.getItem('initialStartTime');
-    let savedLastSaveTime = window.localStorage.getItem('lastSaveTime');
+    let currentTime = new Date();
 
     if (paused) {
-        endingTime = new Date(Date.now() + remainingTimeOnPause);
+        endingTime = new Date(currentTime.getTime() + remainingTimeOnPause);
         paused = false;
         logMessage("Core", `Timer Resumed with ${remainingTimeOnPause / 1000} seconds remaining`);
-    } else if (savedRemainingTime && savedInitialStartTime && savedLastSaveTime) {
-        // Load the saved state
-        let elapsedSinceLastSave = Date.now() - parseInt(savedLastSaveTime);
-        let remainingTime = Math.max(0, parseInt(savedRemainingTime) - elapsedSinceLastSave);
-        
-        initialStartTime = new Date(parseInt(savedInitialStartTime));
-        endingTime = new Date(Date.now() + remainingTime);
-        
-        logMessage("Core", "Loaded saved timer state");
     } else {
-        // No saved state, start fresh
-        var initialHoursLocal = window.localStorage.getItem('initialHours')
-        if (initialHoursLocal !== null) {
-            initialHours  = parseInt(initialHoursLocal);
-            logMessage("Core", "Found initialHours in localStorage.")
-        } else {
-            initialHours = initialHoursConfig;
-        }
-        var initialMinutesLocal = window.localStorage.getItem('initialMinutes')
-        if (initialMinutesLocal !== null) {
-            initialMinutes = parseInt(initialMinutesLocal);
-            logMessage("Core", "Found initialMinutes in localStorage.")
-        } else {
-            initialMinutes = initialMinutesConfig;
-        }
-        var initialSecondsLocal = window.localStorage.getItem('initialSeconds')
-        if (initialSecondsLocal !== null) {
-            initialSeconds  = parseInt(initialSecondsLocal);
-            logMessage("Core", "Found initialSeconds in localStorage.")
-        } else {
-            initialSeconds = initialSecondsConfig;
-        }
-        
-        initialStartTime = new Date();
-        
         // Calculate initial time in seconds
         let initialTimeInSeconds = initialHours * 3600 + initialMinutes * 60 + initialSeconds;
         
@@ -160,30 +137,32 @@ startBtn.addEventListener("click", function(){
             initialTimeInSeconds = Math.min(initialTimeInSeconds, maxDuration);
         }
         
-        // Set endingTime based on the (potentially limited) initial time
-        endingTime = new Date(initialStartTime.getTime() + initialTimeInSeconds * 1000);
+        initialStartTime = currentTime;
+        endingTime = new Date(currentTime.getTime() + initialTimeInSeconds * 1000);
+        
+        logMessage("Core", `Timer Started with ${initialTimeInSeconds} seconds`);
     }
 
     document.getElementById("startPage").style.visibility = "hidden";
     document.getElementById("container").style.visibility = "visible";
     
-    paused = false;
+    if (countdownUpdater) {
+        clearInterval(countdownUpdater);
+    }
     
     countdownUpdater = setInterval(() => {
         getNextTime();
     }, 1); 
-    
-    logMessage("Core", "Timer Started/Resumed");
 });
 
 Mousetrap.bind(pauseShort, function(e) {
     if (!paused) {
         paused = true;
-        remainingTimeOnPause = endingTime - Date.now();
-        logMessage("Core", "Timer was paused");
+        remainingTimeOnPause = Math.max(0, endingTime - Date.now());
+        logMessage("Core", `Timer was paused with ${remainingTimeOnPause / 1000} seconds remaining`);
         document.getElementById("startPage").style.visibility = "visible";
         clearInterval(countdownUpdater);
-        updateDisplayWhilePaused(); // Add this line to update the display immediately when paused
+        updateDisplayWhilePaused();
     }
 });
 
@@ -226,6 +205,11 @@ Mousetrap.bind(subSecondShort, function(e) {
 });
 
 function adjustTimeManually(seconds) {
+    if (countdownEnded && seconds > 0) {
+        logMessage("Core", "Cannot add time after the timer has ended");
+        return;
+    }
+
     if (paused && !allowTimeAddWhilePaused) {
         logMessage("Core", "Cannot adjust time while paused");
         return;
@@ -256,6 +240,14 @@ function adjustTimeManually(seconds) {
 
     let action = seconds > 0 ? "Added" : "Subtracted";
     logMessage("Core", `Manually ${action} ${Math.abs(seconds)} seconds ${paused ? "while paused" : "to the timer"}`);
+
+    // If timer was ended and we subtracted time, restart the countdown
+    if (countdownEnded && seconds < 0) {
+        countdownEnded = false;
+        countdownUpdater = setInterval(() => {
+            getNextTime();
+        }, 1);
+    }
 }
 
 async function specialHourHandler(type){
@@ -283,9 +275,7 @@ function calculateMaxDuration() {
 }
 
 function updateDisplayWhilePaused() {
-    let currentTime = new Date();
-    let differenceTime = remainingTimeOnPause;
-
+    let differenceTime = Math.max(0, remainingTimeOnPause);
     time = `${timeFunc.getHours(differenceTime)}:${timeFunc.getMinutes(differenceTime)}:${timeFunc.getSeconds(differenceTime)}`;
     timeText.innerText = time;
 }
@@ -338,11 +328,10 @@ var randomHappyBool = false
 var scheduleHappyBool = false
 
 const getNextTime = () => {
-	
-	let currentTime = new Date(Date.now());
-	let differenceTime = endingTime - currentTime;
+    let currentTime = new Date(Date.now());
+    let differenceTime = endingTime - currentTime;
 
-	// Check if maxTimerDuration is set and if it's been exceeded
+    // Check if maxTimerDuration is set and if it's been exceeded
     let maxDuration = calculateMaxDuration();
     if (maxDuration !== null) {
         let totalElapsedTime = (currentTime - initialStartTime) / 1000; // in seconds
@@ -351,36 +340,38 @@ const getNextTime = () => {
         endingTime = new Date(currentTime.getTime() + differenceTime);
     }
 
-	time = `${timeFunc.getHours(differenceTime)}:${timeFunc.getMinutes(differenceTime)}:${timeFunc.getSeconds(differenceTime)}`;
+    // Handle sync time and timer end
     if (differenceTime <= 0) {
-        time = "00:00:00";
-        if (differenceTime <= (syncTime * 1000 * -1)) {
+        if (!countdownEnded && Math.abs(differenceTime) >= syncTime * 1000) {
             clearInterval(countdownUpdater);
             countdownEnded = true;
             logMessage("Core", "Timer Ended");
         }
+        differenceTime = 0;
+        time = "00:00:00";
+    } else {
+        time = `${timeFunc.getHours(differenceTime)}:${timeFunc.getMinutes(differenceTime)}:${timeFunc.getSeconds(differenceTime)}`;
     }
 
-	if (!paused){
-		window.localStorage.setItem('initialHours', timeFunc.getHours(differenceTime));
-		window.localStorage.setItem('initialMinutes', timeFunc.getMinutes(differenceTime));
-		window.localStorage.setItem('initialSeconds', timeFunc.getSeconds(differenceTime));
-		window.localStorage.setItem('initialTotalTime', totalElapsedTime.toString());
-		window.localStorage.setItem('remainingTime', differenceTime.toString());
+    if (!paused) {
+        window.localStorage.setItem('initialHours', timeFunc.getHours(differenceTime));
+        window.localStorage.setItem('initialMinutes', timeFunc.getMinutes(differenceTime));
+        window.localStorage.setItem('initialSeconds', timeFunc.getSeconds(differenceTime));
+        window.localStorage.setItem('initialTotalTime', totalElapsedTime.toString());
+        window.localStorage.setItem('remainingTime', differenceTime.toString());
         window.localStorage.setItem('initialStartTime', initialStartTime.getTime().toString());
         window.localStorage.setItem('lastSaveTime', currentTime.getTime().toString());
 
-		if (randHappy && happy_hour && !randomHappyBool){
-			randomHappyBool = true
-			setTimeout(randomHappy,1000)
-		}
-		if (scheduleHappy && happy_hour && !scheduleHappyBool){
-			scheduleHappyBool = true
-			scheduleHappyFunc()
-		}
-	}
-	timeText.innerText = time;
-	
+        if (randHappy && happy_hour && !randomHappyBool) {
+            randomHappyBool = true;
+            setTimeout(randomHappy, 1000);
+        }
+        if (scheduleHappy && happy_hour && !scheduleHappyBool) {
+            scheduleHappyBool = true;
+            scheduleHappyFunc();
+        }
+    }
+    timeText.innerText = time;
 };
 
 function randomHappy(){
