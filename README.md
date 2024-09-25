@@ -10,15 +10,15 @@
 <br/>
 
 <h2>Shortcuts</h2>
-<p>`CTRL+ALT+P` - Pause the Timer</p>
-<p>`CTRL+ALT+H` - Enable/disable Happy Hour</p>
-<p>`CTRL+ALT+R` - Enable/disable Random Hour</p>
-<p>`CTRL+ALT+1` - Manually add 1h to the timer</p>
-<p>`CTRL+ALT+2` - Manually add 1m to the timer</p>
-<p>`CTRL+ALT+3` - Manually add 1s to the timer</p>
-<p>`CTRL+ALT+7` - Manually subtract 1h from the timer</p>
-<p>`CTRL+ALT+8` - Manually subtract 1m from the timer</p>
-<p>`CTRL+ALT+0` - Manually subtract 1s from the timer</p>
+<p><b>CTRL+ALT+P</b> - Pause the Timer</p>
+<p><b>CTRL+ALT+H</b> - Enable/disable Happy Hour</p>
+<p><b>CTRL+ALT+R</b> - Enable/disable Random Hour</p>
+<p><b>CTRL+ALT+1</b> - Manually add 1h to the timer</p>
+<p><b>CTRL+ALT+2</b> - Manually add 1m to the timer</p>
+<p><b>CTRL+ALT+3</b> - Manually add 1s to the timer</p>
+<p><b>CTRL+ALT+7</b> - Manually subtract 1h from the timer</p>
+<p><b>CTRL+ALT+8</b> - Manually subtract 1m from the timer</p>
+<p><b>CTRL+ALT+0</b> - Manually subtract 1s from the timer</p>
 <p>Shortcuts can be changed in config.js or the GUI configurator.</p>
 <br/>
 
