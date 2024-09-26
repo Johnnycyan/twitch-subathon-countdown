@@ -126,8 +126,12 @@ startBtn.addEventListener("click", function(){
         paused = false;
         logMessage("Core", `Timer Resumed with ${remainingTimeOnPause / 1000} seconds remaining`);
     } else {
-        // Calculate initial time in seconds
-        let initialTimeInSeconds = initialHours * 3600 + initialMinutes * 60 + initialSeconds;
+        // Retrieve saved time from localStorage or use initial configuration
+        let savedHours = parseInt(window.localStorage.getItem('initialHours')) || initialHours;
+        let savedMinutes = parseInt(window.localStorage.getItem('initialMinutes')) || initialMinutes;
+        let savedSeconds = parseInt(window.localStorage.getItem('initialSeconds')) || initialSeconds;
+        
+        let initialTimeInSeconds = savedHours * 3600 + savedMinutes * 60 + savedSeconds;
         
         // Calculate max duration
         let maxDuration = calculateMaxDuration();
